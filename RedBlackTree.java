@@ -1,6 +1,9 @@
 //The following is one possible RedBlackTree implementation.
 //Much of this code is from Sven Woltmann's public GitHub repository. Thank you Mr. Woltmann for making your code available for educational purposes.
-
+/* Author Spencer Gilcrest
+Date turn in: 2/5/26
+this program is my Red black tree
+ */
 public class RedBlackTree{
 
   static final boolean RED = false;
@@ -442,19 +445,113 @@ public class RedBlackTree{
   // To receive full credit you must explicitly check for each property! You may not assume anything based on the above implementation (which does ensure all these rules are followed)
   // you may wish to add some helper functions here.
   public boolean isRedBlack() {
-	  return false;
+	  
+    //rule 2
+    if (root != null && root.color != BLACK){
+      return false;
+    }
+
+    //rule 4
+    if (!redChildrenBlack(root)){
+      return false;
+    }
+
+    //rule 5
+    if (getBlackHeight(root) == -1){
+      return false;
+    }
+
+    return true;
+  }
+
+//precondition: node initialized
+//postcondition: check if all red nodes below n have black children (rule 4)
+  private boolean redChildrenBlack(Node node){
+    if(node == null){
+      return true;
+    }
+
+    if (node.color == RED){
+      if (node.left != null && node.left.color == RED){
+        return false;
+      }
+      if (node.right != null && node.right.color == RED){
+        return false;
+      }
+    }
+
+      return redChildrenBlack(node.left) && redChildrenBlack(node.right);
+    
+  }
+
+//precondition: node has been initialized
+//postcondition: returns black height of node or -1 if invalid paths (rule 5)
+  private int getBlackHeight(Node node){
+    if (node == null){
+      return 1;
+    }
+
+    int leftBlackNodes = getBlackHeight(node.left);
+    int rightBlackNodes = getBlackHeight(node.right);
+
+    if (leftBlackNodes == -1 || rightBlackNodes == -1){
+      return -1;
+    }
+
+    if (leftBlackNodes != rightBlackNodes){
+      return -1;
+    }
+
+    if (node.color == BLACK){
+      return leftBlackNodes + 1;
+    }
+    else{
+      return leftBlackNodes;
+    }
   }
   
   
   //This should return a string of comma separated keys that represents the shortest height path through the tree.
   //Perhaps this would be easier to do with some helper functions?
   public String shortestTruePath() {
-	  return "";
+    if (root == null){
+      return "";
+    }
+    return shortestBlackPath(root, "");
+  }
+
+  private String shortestBlackPath(Node node, String path){
+    if (node == null){
+      return path;
+    }
+
+    String newPath = path;
+    if (node.color ==  BLACK){
+      if (newPath.length() > 0){
+        newPath += ",";
+      }
+      newPath += node.key;
+    }
+
+    String leftPath = shortestBlackPath(node.left, newPath);
+    String rightPath = shortestBlackPath(node.right, newPath);
+    if (leftPath.length() < rightPath.length()){
+      return leftPath;
+    }
+    else{
+      return rightPath;
+    }
   }
   
+  //took this from avl gets the real height of tree
+  private int getRealHeight(Node n){
+        if (n == null) return 0;
+        return 1 + Math.max(getRealHeight(n.left), getRealHeight(n.right));
+    }
+
   //This returns the absolute value of the difference between the real height of the tree and its black height. 
   public int trueHeightDiff(){
-	  return 0;
+	  return Math.abs(getRealHeight(root) - getBlackHeight(root));
   }
 }
 
